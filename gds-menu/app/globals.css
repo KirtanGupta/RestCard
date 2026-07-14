@@ -1,0 +1,311 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600&family=Cinzel:wght@400;600&display=swap');
+@import "tailwindcss";
+
+/* ============================================================
+   DESIGN TOKENS
+   ============================================================ */
+:root {
+  --gold:        #d4a017;
+  --gold-bright: #f5c518;
+  --gold-dark:   #b8860b;
+  --gold-glow:   rgba(212,160,23,0.55);
+  --gold-grad:   linear-gradient(135deg,#d4a017 0%,#f5c518 45%,#d4a017 75%,#b8860b 100%);
+  --gold-shimmer:linear-gradient(90deg,#b8860b 0%,#f5c518 30%,#ffd966 50%,#f5c518 70%,#b8860b 100%);
+  --bg:          #080808;
+  --swiper-theme-color: #d4a017;
+}
+
+/* ============================================================
+   BASE — FULL VIEWPORT, NO SCROLL
+   ============================================================ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html {
+  width: 100%; height: 100%;
+  overflow: hidden;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  width: 100%; height: 100%;
+  background: var(--bg);
+  font-family: 'Inter', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  overflow: hidden;
+  touch-action: pan-x pan-y;
+}
+
+/* ============================================================
+   LOADING SCREEN
+   ============================================================ */
+.loading-screen {
+  position: fixed; inset: 0; z-index: 9999;
+  background: var(--bg);
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 1.8rem;
+}
+.loading-screen.fade-out {
+  animation: fadeScreen 0.8s ease-out forwards;
+}
+@keyframes fadeScreen {
+  to { opacity:0; transform:scale(1.04); pointer-events:none; }
+}
+.loading-logo  { animation: popIn 0.9s cubic-bezier(0.16,1,0.3,1) both; }
+@keyframes popIn {
+  from { opacity:0; transform:scale(0.7) translateY(18px); }
+  to   { opacity:1; transform:none; }
+}
+.loading-text {
+  font-family:'Cinzel',serif; font-size:0.82rem; letter-spacing:0.38em;
+  text-transform:uppercase; color:var(--gold);
+  animation: pulse 1.7s ease-in-out infinite;
+}
+@keyframes pulse { 0%,100%{opacity:0.35} 50%{opacity:1} }
+
+.loading-dots { display:flex; gap:0.45rem; margin-top:0.4rem; }
+.loading-dot {
+  width:6px; height:6px; border-radius:50%;
+  background:var(--gold-grad);
+  animation: bounce 1.2s ease-in-out infinite both;
+}
+.loading-dot:nth-child(2){animation-delay:0.18s}
+.loading-dot:nth-child(3){animation-delay:0.36s}
+@keyframes bounce {
+  0%,80%,100%{transform:scale(0.55);opacity:0.35}
+  40%        {transform:scale(1.25);opacity:1}
+}
+
+/* ============================================================
+   GALLERY ROOT — fills the entire screen
+   ============================================================ */
+.gallery-root {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  background: var(--bg);
+  overflow: hidden;
+}
+
+/* ============================================================
+   SWIPER CONTAINER
+   ============================================================ */
+.menu-swiper {
+  width:  100%;
+  height: 100%;
+}
+
+/* Each slide fills the swiper — let Swiper position them naturally
+   (side-by-side via translateX), we just centre the content inside */
+.menu-swiper .swiper-slide {
+  display:         flex;
+  align-items:     center;
+  justify-content: center;
+  overflow:        hidden;
+  background:      var(--bg);
+  /* Swiper already sets width:100% on slides; don't override height */
+  height: 100%;
+}
+
+/* ============================================================
+   SLIDE INNER — flex centring wrapper
+   ============================================================ */
+.slide-centrer {
+  display:         flex;
+  align-items:     center;
+  justify-content: center;
+  width:  100%;
+  height: 100%;
+}
+
+/* ============================================================
+   MENU IMAGE — fills available space while keeping aspect ratio
+   Images are 1600×1150 (landscape, ~1.39:1 ratio)
+   ============================================================ */
+.menu-img {
+  display: block;
+  /* Let the browser scale the image within the slide */
+  width:      100% !important;
+  height:     auto !important;
+  max-height: 100vh !important;
+  object-fit: contain !important;
+  object-position: center center !important;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+/* On landscape screens / desktop the image can be constrained by height */
+@media (min-aspect-ratio: 1400/1150) {
+  /* Viewport is wider than the image's aspect ratio → fit by height */
+  .menu-img {
+    width:     auto !important;
+    height:    100vh !important;
+    max-width: 100vw !important;
+  }
+}
+
+/* ============================================================
+   SWIPER PAGINATION
+   ============================================================ */
+.swiper-pagination {
+  bottom: 3rem !important;
+  z-index: 60 !important;
+}
+.swiper-pagination-bullet {
+  width:7px !important; height:7px !important;
+  background:rgba(212,160,23,0.3) !important;
+  opacity:1 !important;
+  margin:0 4px !important;
+  transition:all 0.3s ease !important;
+}
+.swiper-pagination-bullet-active {
+  background:var(--gold) !important;
+  width:26px !important; border-radius:4px !important;
+  box-shadow:0 0 8px var(--gold-glow) !important;
+}
+
+/* ============================================================
+   NAV BUTTONS  < >
+   z-index 200 → always above Swiper (which uses z-index 1)
+   ============================================================ */
+.nav-btn {
+  position:  fixed;
+  top:       50%;
+  transform: translateY(-50%);
+  z-index:   200;
+
+  display:         flex;
+  align-items:     center;
+  justify-content: center;
+
+  /* Mobile default size */
+  width:  42px;
+  height: 76px;
+
+  background:     rgba(8,8,8,0.78);
+  border:         1.5px solid rgba(212,160,23,0.55);
+  border-radius:  8px;
+  backdrop-filter: blur(8px);
+  box-shadow:     0 4px 20px rgba(0,0,0,0.6);
+  cursor:         pointer;
+
+  transition: background 0.2s, border-color 0.2s, box-shadow 0.2s, transform 0.15s, opacity 0.25s;
+  outline:    none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.nav-prev { left:  10px; }
+.nav-next { right: 10px; }
+
+.nav-btn:hover,
+.nav-btn:focus-visible {
+  background:  rgba(212,160,23,0.16);
+  border-color:var(--gold);
+  box-shadow:  0 0 18px var(--gold-glow), 0 4px 20px rgba(0,0,0,0.6);
+  transform:   translateY(-50%) scale(1.07);
+}
+.nav-btn:active {
+  transform: translateY(-50%) scale(0.93);
+}
+
+.nav-hidden { opacity:0; pointer-events:none; }
+
+.nav-symbol {
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size:   1.5rem;
+  font-weight: 300;
+  color:       var(--gold);
+  line-height: 1;
+  user-select: none;
+  text-shadow: 0 0 16px var(--gold-glow);
+}
+
+/* Very small phones */
+@media (max-width: 360px) {
+  .nav-btn    { width:32px; height:56px; }
+  .nav-prev   { left:3px; }
+  .nav-next   { right:3px; }
+  .nav-symbol { font-size:1.15rem; }
+}
+
+/* Tablets */
+@media (min-width: 768px) {
+  .nav-btn    { width:50px; height:92px; border-radius:10px; }
+  .nav-prev   { left:16px; }
+  .nav-next   { right:16px; }
+  .nav-symbol { font-size:1.8rem; }
+}
+
+/* Desktop */
+@media (min-width: 1024px) {
+  .nav-btn    { width:56px; height:104px; border-radius:12px; }
+  .nav-prev   { left:28px; }
+  .nav-next   { right:28px; }
+  .nav-symbol { font-size:2rem; }
+}
+
+/* Short landscape phones */
+@media (max-height: 480px) and (orientation: landscape) {
+  .nav-btn           { height:50px; }
+  .swiper-pagination { bottom:0.5rem !important; }
+  .counter-badge     { bottom:0.3rem; }
+  .swipe-hint        { bottom:2.4rem; }
+}
+
+/* ============================================================
+   PAGE COUNTER "1 / 8"
+   ============================================================ */
+.counter-badge {
+  position:  fixed;
+  bottom:    1rem;
+  left:      50%;
+  transform: translateX(-50%);
+  z-index:   150;
+  font-family:    'Cinzel', serif;
+  font-size:      0.72rem;
+  letter-spacing: 0.22em;
+  white-space:    nowrap;
+  color:          var(--gold);
+  background:     rgba(0,0,0,0.68);
+  border:         1px solid rgba(212,160,23,0.3);
+  backdrop-filter:blur(8px);
+  padding:        0.38rem 1.1rem;
+  border-radius:  100px;
+}
+
+/* ============================================================
+   SWIPE HINT
+   ============================================================ */
+.swipe-hint {
+  position:  fixed;
+  bottom:    5rem;
+  left:      50%;
+  transform: translateX(-50%);
+  z-index:   150;
+  display:    flex; align-items:center; gap:0.4rem;
+  white-space:nowrap;
+  font-family:'Inter',sans-serif;
+  font-size:  0.63rem; letter-spacing:0.13em;
+  text-transform:uppercase;
+  color:rgba(212,160,23,0.65);
+  animation:hintOut 0.8s ease 4s forwards;
+}
+.swipe-hint svg { opacity:0.7; }
+@keyframes hintOut { to{opacity:0;pointer-events:none} }
+
+/* ============================================================
+   DESKTOP KEYBOARD HINT
+   ============================================================ */
+.kbd-hint {
+  display:none;
+  position:fixed; bottom:1rem; right:1.2rem; z-index:150;
+  font-size:0.58rem; letter-spacing:0.1em;
+  color:rgba(255,255,255,0.18);
+}
+@media (min-width:1024px){ .kbd-hint{display:block} }
+
+/* ============================================================
+   MISC
+   ============================================================ */
+::-webkit-scrollbar{display:none}
