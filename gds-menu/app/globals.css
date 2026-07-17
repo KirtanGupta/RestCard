@@ -309,3 +309,303 @@ body {
    MISC
    ============================================================ */
 ::-webkit-scrollbar{display:none}
+
+/* ============================================================
+   WELCOME PAGE — ROOT
+   position:fixed + overflow-y:auto works within the locked
+   html/body and does not break the gallery pages
+   ============================================================ */
+.welcome-root {
+  position: fixed;
+  inset: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  background: #000;
+  background-image: radial-gradient(ellipse 600px 400px at 50% -10%,
+    rgba(212,160,23,0.09) 0%, transparent 70%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 2.8rem 1.4rem 2.4rem;
+  z-index: 1;
+}
+
+/* ── HEADER SECTION ── */
+.welcome-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.1rem;
+  width: 100%;
+}
+
+.welcome-divider-line {
+  width: 60px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #d4a017, transparent);
+  margin-bottom: 0.3rem;
+  animation: wFadeIn 0.8s ease both;
+}
+
+/* Logo ring — pops in */
+.welcome-logo-ring {
+  width: 108px;
+  height: 108px;
+  border-radius: 50%;
+  border: 2px solid #d4a017;
+  padding: 4px;
+  background: #111;
+  box-shadow: 0 0 28px rgba(212,160,23,0.3), 0 0 56px rgba(212,160,23,0.1);
+  overflow: hidden;
+  position: relative;
+  animation: wPopIn 0.85s cubic-bezier(0.16,1,0.3,1) both;
+}
+
+/* Restaurant name block — slides up */
+.welcome-name-block {
+  text-align: center;
+  animation: wSlideUp 0.7s cubic-bezier(0.22,1,0.36,1) 0.18s both;
+}
+
+.welcome-restaurant-name {
+  font-family: 'Cinzel', serif;
+  font-size: clamp(1.25rem, 5vw, 1.7rem);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  background: linear-gradient(135deg, #d4a017 0%, #f5c518 50%, #b8860b 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.welcome-since {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.62rem;
+  letter-spacing: 0.32em;
+  color: #888;
+  text-transform: uppercase;
+  margin-top: 0.3rem;
+}
+
+/* Ornamental divider */
+.welcome-divider {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  width: min(240px, 80%);
+  margin: 0.4rem 0 0.2rem;
+  animation: wFadeIn 0.7s ease 0.28s both;
+}
+.welcome-divider::before,
+.welcome-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(212,160,23,0.45));
+}
+.welcome-divider::after {
+  background: linear-gradient(90deg, rgba(212,160,23,0.45), transparent);
+}
+.welcome-divider-gem {
+  font-size: 0.6rem;
+  color: #d4a017;
+  opacity: 0.75;
+}
+
+/* ── WELCOME TEXT BLOCK ── */
+.welcome-text-block {
+  text-align: center;
+  margin-top: 1.8rem;
+  animation: wSlideUp 0.65s cubic-bezier(0.22,1,0.36,1) 0.34s both;
+}
+
+.welcome-heading {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(2.4rem, 9vw, 3.4rem);
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: 0.02em;
+  line-height: 1.1;
+}
+
+.welcome-subheading {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.78rem;
+  letter-spacing: 0.18em;
+  color: rgba(255,255,255,0.45);
+  text-transform: uppercase;
+  margin-top: 0.65rem;
+}
+
+/* ── BUTTONS SECTION ── */
+.welcome-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  width: 100%;
+  max-width: 420px;
+  margin-top: 2.4rem;
+}
+
+/* Individual menu button */
+.menu-btn {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  width: 100%;
+  padding: 1.15rem 1.4rem;
+  border: none;
+  border-radius: 14px;
+  cursor: pointer;
+  overflow: hidden;
+  text-align: left;
+  -webkit-tap-highlight-color: transparent;
+  outline: none;
+  /* keyframe entry — animationDelay set inline */
+  animation: btnAppear 0.65s cubic-bezier(0.22,1,0.36,1) both;
+  /* hover/active transitions */
+  transition: transform 0.18s ease, box-shadow 0.18s ease,
+              background 0.18s ease, border-color 0.18s ease;
+}
+@keyframes btnAppear {
+  from { opacity:0; transform:translateY(26px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+
+/* Veg — green gradient */
+.menu-btn--veg {
+  background: linear-gradient(135deg, #0a2e0a 0%, #145214 40%, #1a6b1a 100%);
+  border: 1.5px solid rgba(76,175,80,0.55);
+  box-shadow: 0 4px 24px rgba(76,175,80,0.18);
+  color: #a5d6a7;
+}
+.menu-btn--veg:hover,
+.menu-btn--veg:focus-visible {
+  background: linear-gradient(135deg, #0f3d0f 0%, #1a6b1a 40%, #228b22 100%);
+  border-color: rgba(102,187,106,0.9);
+  box-shadow: 0 0 28px rgba(76,175,80,0.38), 0 4px 24px rgba(76,175,80,0.18);
+  transform: scale(1.025);
+}
+.menu-btn--veg .menu-btn-label    { color: #c8e6c9; }
+.menu-btn--veg .menu-btn-subtitle { color: rgba(165,214,167,0.7); }
+.menu-btn--veg .menu-btn-icon     { color: #66bb6a; }
+.menu-btn--veg .menu-btn-arrow    { color: rgba(165,214,167,0.55); }
+
+/* Non-veg — orange/red gradient */
+.menu-btn--nonveg {
+  background: linear-gradient(135deg, #2e0d00 0%, #7a2c00 40%, #b54000 100%);
+  border: 1.5px solid rgba(245,166,35,0.55);
+  box-shadow: 0 4px 24px rgba(245,100,0,0.18);
+  color: #ffcc80;
+}
+.menu-btn--nonveg:hover,
+.menu-btn--nonveg:focus-visible {
+  background: linear-gradient(135deg, #3d1100 0%, #9e3700 40%, #d44f00 100%);
+  border-color: rgba(245,166,35,0.9);
+  box-shadow: 0 0 28px rgba(245,120,0,0.38), 0 4px 24px rgba(245,100,0,0.18);
+  transform: scale(1.025);
+}
+.menu-btn--nonveg .menu-btn-label    { color: #ffe0b2; }
+.menu-btn--nonveg .menu-btn-subtitle { color: rgba(255,204,128,0.7); }
+.menu-btn--nonveg .menu-btn-icon     { color: #ffa726; }
+.menu-btn--nonveg .menu-btn-arrow    { color: rgba(255,204,128,0.55); }
+
+.menu-btn:active { transform: scale(0.96) !important; }
+
+/* Icon wrapper */
+.menu-btn-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: rgba(255,255,255,0.07);
+  flex-shrink: 0;
+}
+
+/* Text content */
+.menu-btn-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  flex: 1;
+}
+.menu-btn-label {
+  font-family: 'Cinzel', serif;
+  font-size: clamp(0.9rem, 3.5vw, 1.1rem);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+}
+.menu-btn-subtitle {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.68rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+/* Arrow chevron */
+.menu-btn-arrow {
+  font-size: 1.6rem;
+  font-weight: 300;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+/* Ripple */
+.menu-btn-ripple {
+  position: absolute;
+  border-radius: 50%;
+  width: 6px; height: 6px;
+  background: rgba(255,255,255,0.35);
+  transform: translate(-50%, -50%) scale(0);
+  animation: rippleOut 0.55s ease-out forwards;
+  pointer-events: none;
+}
+@keyframes rippleOut {
+  to { transform: translate(-50%,-50%) scale(60); opacity: 0; }
+}
+
+/* ── FOOTER ── */
+.welcome-footer {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  flex-wrap: wrap;
+  justify-content: center;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.62rem;
+  letter-spacing: 0.14em;
+  color: rgba(255,255,255,0.25);
+  text-transform: uppercase;
+  margin-top: auto;
+  padding-top: 2.4rem;
+  animation: wFadeIn 0.7s ease 0.95s both;
+}
+.welcome-footer-dot { color: rgba(212,160,23,0.4); }
+
+/* ── Welcome page keyframes ── */
+@keyframes wPopIn {
+  from { opacity:0; transform:scale(0.72) translateY(14px); }
+  to   { opacity:1; transform:scale(1)    translateY(0);    }
+}
+@keyframes wSlideUp {
+  from { opacity:0; transform:translateY(20px); }
+  to   { opacity:1; transform:translateY(0);    }
+}
+@keyframes wFadeIn {
+  from { opacity:0; }
+  to   { opacity:1; }
+}
+
+/* ── Responsive tweaks ── */
+@media (min-width: 480px) {
+  .welcome-root      { padding: 3.2rem 2rem 2.8rem; }
+  .welcome-logo-ring { width: 120px; height: 120px; }
+}
+@media (min-width: 768px) {
+  .welcome-root    { padding: 4rem 2.4rem 3.2rem; }
+  .welcome-buttons { gap: 1.2rem; }
+  .menu-btn        { padding: 1.3rem 1.6rem; }
+}
