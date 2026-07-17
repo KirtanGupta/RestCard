@@ -8,10 +8,10 @@ export const metadata = {
 
 // Veg menu images stored in public/menu/
 const VEG_IMAGES = [
-  { src: '/menu/1.png',    alt: "GD's Fast Food — Menu Cover & Contact Info" },
-  { src: '/menu/Veg1.png', alt: "GD's Fast Food Veg Menu Page 1" },
-  { src: '/menu/Veg2.png', alt: "GD's Fast Food Veg Menu Page 2" },
-  { src: '/menu/Veg3.png', alt: "GD's Fast Food Veg Menu Page 3" },
+  { src: '/menu/v2/veg_cover.png', alt: "GD's Fast Food — Veg Menu Cover & Contact Info" },
+  { src: '/menu/v2/Veg1.png',      alt: "GD's Fast Food Veg Menu Page 1" },
+  { src: '/menu/v2/Veg2.png', alt: "GD's Fast Food Veg Menu Page 2" },
+  { src: '/menu/v2/Veg3.png', alt: "GD's Fast Food Veg Menu Page 3" },
 ];
 
 export default function VegMenuPage() {
