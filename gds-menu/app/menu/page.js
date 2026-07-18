@@ -19,5 +19,5 @@ const MENU_IMAGES = [
 ];
 
 export default function MenuPage() {
-  return <MenuGallery images={MENU_IMAGES} />;
+  return <MenuGallery images={MENU_IMAGES} variant="nonveg" />;
 }

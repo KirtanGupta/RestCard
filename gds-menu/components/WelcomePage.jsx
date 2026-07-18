@@ -2,17 +2,25 @@
 
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
+import SitePreloader from './SitePreloader';
 
 export default function WelcomePage() {
   const router = useRouter();
+  const [showPreloader, setShowPreloader] = useState(true);
 
   const navigate = (path) => {
     router.push(path);
   };
 
   return (
-    <main className="welcome-root" aria-label="GD's Fast Food Menu Selection">
+    <>
+      {/* ── SITE PRELOADER ── */}
+      {showPreloader && (
+        <SitePreloader onDone={() => setShowPreloader(false)} />
+      )}
+
+      <main className="welcome-root" aria-label="GD's Fast Food Menu Selection">
       {/* ── HEADER SECTION ── */}
       <section className="welcome-header">
         {/* Gold decorative line */}
@@ -81,6 +89,7 @@ export default function WelcomePage() {
         <span>Est. 1986</span>
       </footer>
     </main>
+    </>
   );
 }
 

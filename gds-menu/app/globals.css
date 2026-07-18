@@ -609,3 +609,331 @@ body {
   .welcome-buttons { gap: 1.2rem; }
   .menu-btn        { padding: 1.3rem 1.6rem; }
 }
+
+/* ============================================================
+   SITE PRELOADER
+   Full-viewport overlay displayed on very first page load.
+   ============================================================ */
+.site-preloader {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  background: #000;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.4rem;
+  animation: sp-enter 0.5s cubic-bezier(0.16,1,0.3,1) both;
+}
+@keyframes sp-enter {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+.site-preloader--exit {
+  animation: sp-exit 0.9s cubic-bezier(0.7,0,0.9,1) forwards;
+  pointer-events: none;
+}
+@keyframes sp-exit {
+  0%   { opacity: 1; transform: scale(1); }
+  60%  { opacity: 1; transform: scale(1.04); }
+  100% { opacity: 0; transform: scale(1.1); }
+}
+
+/* ── Logo group — stacking context for all circular elements ──
+   Fixed 220×220 px box; everything inside uses position:absolute
+   and is centred via top/left 50% + translate(-50%,-50%).
+   The logo-wrap sits in the normal flow at the centre of this box.
+   ─────────────────────────────────────────────────────────── */
+.site-preloader__logo-group {
+  position: relative;
+  width: 220px;
+  height: 220px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+/* Ambient radial glow — centred on the group */
+.site-preloader__glow {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: 340px;
+  height: 340px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(212,160,23,0.14) 0%, transparent 70%);
+  animation: sp-glow-pulse 2.4s ease-in-out infinite;
+  pointer-events: none;
+}
+@keyframes sp-glow-pulse {
+  0%, 100% { transform: translate(-50%,-50%) scale(0.9); opacity: 0.6; }
+  50%       { transform: translate(-50%,-50%) scale(1.1); opacity: 1; }
+}
+
+/* Particle orbit wrapper — centred, rotates as a whole */
+.site-preloader__orbit {
+  position: absolute;
+  top: 50%; left: 50%;
+  width: 196px;
+  height: 196px;
+  margin-top: -98px;
+  margin-left: -98px;
+  border-radius: 50%;
+  animation: sp-orbit-spin 4s linear infinite;
+  pointer-events: none;
+}
+@keyframes sp-orbit-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Each particle is placed from the centre of orbit div */
+.site-preloader__particle {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--gold);
+  transform: rotate(calc(var(--i)*45deg)) translateX(98px) translateY(-50%) scale(0);
+  opacity: 0;
+  animation: sp-particle 2s ease-in-out infinite;
+  animation-delay: calc(var(--i) * 0.25s);
+  box-shadow: 0 0 6px var(--gold-glow);
+}
+@keyframes sp-particle {
+  0%   { transform: rotate(calc(var(--i)*45deg)) translateX(98px) translateY(-50%) scale(0); opacity: 0; }
+  30%  { transform: rotate(calc(var(--i)*45deg)) translateX(98px) translateY(-50%) scale(1); opacity: 1; }
+  70%  { transform: rotate(calc(var(--i)*45deg)) translateX(98px) translateY(-50%) scale(1); opacity: 1; }
+  100% { transform: rotate(calc(var(--i)*45deg)) translateX(98px) translateY(-50%) scale(0); opacity: 0; }
+}
+
+/* Spinning dashed arc — centred */
+.site-preloader__ring-outer {
+  position: absolute;
+  top: 50%; left: 50%;
+  width: 170px;
+  height: 170px;
+  margin-top: -85px;
+  margin-left: -85px;
+  border-radius: 50%;
+  border: 1.5px dashed rgba(212,160,23,0.28);
+  animation: sp-ring-spin 3s linear infinite reverse;
+  pointer-events: none;
+}
+@keyframes sp-ring-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Breathing gold border — centred */
+.site-preloader__ring-static {
+  position: absolute;
+  top: 50%; left: 50%;
+  width: 148px;
+  height: 148px;
+  margin-top: -74px;
+  margin-left: -74px;
+  border-radius: 50%;
+  border: 2px solid rgba(212,160,23,0.7);
+  box-shadow:
+    0 0 20px rgba(212,160,23,0.35),
+    0 0 50px rgba(212,160,23,0.12),
+    inset 0 0 20px rgba(212,160,23,0.08);
+  animation: sp-ring-breathe 2.4s ease-in-out infinite;
+  pointer-events: none;
+}
+@keyframes sp-ring-breathe {
+  0%, 100% { box-shadow: 0 0 18px rgba(212,160,23,0.3), 0 0 45px rgba(212,160,23,0.1); }
+  50%       { box-shadow: 0 0 30px rgba(212,160,23,0.55), 0 0 70px rgba(212,160,23,0.2); }
+}
+
+/* Logo wrapper — in normal flex flow at centre of logo-group */
+.site-preloader__logo-wrap {
+  position: relative;   /* required for Next/Image fill AND shimmer */
+  width: 132px;
+  height: 132px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: #111;
+  animation: sp-logo-pop 0.85s cubic-bezier(0.16,1,0.3,1) 0.1s both;
+  flex-shrink: 0;
+  z-index: 1;           /* sit above the rings */
+}
+@keyframes sp-logo-pop {
+  from { opacity: 0; transform: scale(0.65); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+/* Shimmer — inside logo-wrap, fills it completely */
+.site-preloader__shimmer {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: linear-gradient(
+    115deg,
+    transparent 30%,
+    rgba(255,220,100,0.28) 50%,
+    transparent 70%
+  );
+  background-size: 300% 100%;
+  animation: sp-shimmer 1.8s ease-in-out 0.6s infinite;
+  pointer-events: none;
+  z-index: 2;
+}
+@keyframes sp-shimmer {
+  0%   { background-position: 100% 0; opacity: 0; }
+  20%  { opacity: 1; }
+  80%  { opacity: 1; }
+  100% { background-position: -100% 0; opacity: 0; }
+}
+
+/* Name block */
+.site-preloader__name-block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3rem;
+  animation: sp-slide-up 0.7s cubic-bezier(0.22,1,0.36,1) 0.4s both;
+}
+.site-preloader__name {
+  font-family: 'Cinzel', serif;
+  font-size: clamp(1.15rem, 5vw, 1.5rem);
+  font-weight: 600;
+  letter-spacing: 0.07em;
+  background: linear-gradient(135deg, #d4a017 0%, #f5c518 50%, #b8860b 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.site-preloader__since {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.58rem;
+  letter-spacing: 0.34em;
+  color: #888;
+  text-transform: uppercase;
+}
+@keyframes sp-slide-up {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Ornament divider */
+.site-preloader__ornament {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  animation: sp-fade-in 0.6s ease 0.65s both;
+}
+.site-preloader__ornament-line {
+  width: 40px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(212,160,23,0.5), transparent);
+  display: block;
+}
+.site-preloader__ornament-gem {
+  font-size: 0.55rem;
+  color: #d4a017;
+  opacity: 0.75;
+  animation: sp-gem-spin 6s linear infinite;
+}
+@keyframes sp-gem-spin {
+  to { transform: rotate(360deg); }
+}
+@keyframes sp-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* Animated progress bar */
+.site-preloader__bar-wrap {
+  width: 100px;
+  height: 2px;
+  background: rgba(212,160,23,0.12);
+  border-radius: 100px;
+  overflow: hidden;
+  animation: sp-fade-in 0.5s ease 0.7s both;
+}
+.site-preloader__bar {
+  height: 100%;
+  width: 0%;
+  background: var(--gold-grad);
+  border-radius: 100px;
+  box-shadow: 0 0 8px var(--gold-glow);
+  animation: sp-bar-fill 2.2s cubic-bezier(0.4,0,0.2,1) 0.2s forwards;
+}
+@keyframes sp-bar-fill {
+  0%   { width: 0%; }
+  60%  { width: 80%; }
+  85%  { width: 92%; }
+  100% { width: 100%; }
+}
+
+/* ============================================================
+   BACK BUTTON — gallery pages (top-left)
+   ============================================================ */
+.back-btn {
+  position: fixed;
+  top: 14px;
+  left: 12px;
+  z-index: 250;
+  display: flex;
+  align-items: center;
+  gap: 0.42rem;
+  padding: 0.48rem 0.9rem 0.48rem 0.75rem;
+  border: none;
+  border-radius: 40px;
+  cursor: pointer;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
+  animation: sp-slide-up 0.55s cubic-bezier(0.22,1,0.36,1) 0.3s both;
+}
+.back-btn:active { transform: scale(0.93); }
+
+/* Veg variant — green */
+.back-btn--veg {
+  background: rgba(10,46,10,0.82);
+  border: 1.5px solid rgba(76,175,80,0.55);
+  color: #a5d6a7;
+  box-shadow: 0 2px 16px rgba(76,175,80,0.15);
+}
+.back-btn--veg:hover,
+.back-btn--veg:focus-visible {
+  background: rgba(15,61,15,0.92);
+  border-color: rgba(102,187,106,0.9);
+  box-shadow: 0 0 18px rgba(76,175,80,0.38), 0 2px 16px rgba(76,175,80,0.2);
+  transform: scale(1.04);
+}
+
+/* Non-veg variant — orange */
+.back-btn--nonveg {
+  background: rgba(46,13,0,0.82);
+  border: 1.5px solid rgba(245,166,35,0.55);
+  color: #ffcc80;
+  box-shadow: 0 2px 16px rgba(245,100,0,0.15);
+}
+.back-btn--nonveg:hover,
+.back-btn--nonveg:focus-visible {
+  background: rgba(61,17,0,0.92);
+  border-color: rgba(245,166,35,0.9);
+  box-shadow: 0 0 18px rgba(245,120,0,0.38), 0 2px 16px rgba(245,100,0,0.2);
+  transform: scale(1.04);
+}
+
+.back-btn__label {
+  line-height: 1;
+}
+
+/* Tablet / Desktop adjustments */
+@media (min-width: 768px) {
+  .back-btn { top: 18px; left: 18px; font-size: 0.75rem; }
+}

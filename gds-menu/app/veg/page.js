@@ -15,5 +15,5 @@ const VEG_IMAGES = [
 ];
 
 export default function VegMenuPage() {
-  return <MenuGallery images={VEG_IMAGES} />;
+  return <MenuGallery images={VEG_IMAGES} variant="veg" />;
 }

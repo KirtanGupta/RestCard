@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { MdSwipeRight } from 'react-icons/md';
 import { Swiper, SwiperSlide } from 'swiper/react';
@@ -13,13 +14,14 @@ import 'swiper/css/pagination';
 import LoadingScreen from './LoadingScreen';
 import ImageCounter from './ImageCounter';
 
-export default function MenuGallery({ images }) {
+export default function MenuGallery({ images, variant = 'nonveg' }) {
   const [loaded,      setLoaded]      = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
   const [showHint,    setShowHint]    = useState(true);
   const [isFirst,     setIsFirst]     = useState(true);
   const [isLast,      setIsLast]      = useState(false);
   const swiperRef = useRef(null);
+  const router = useRouter();
 
   const handleSlideChange = useCallback((swiper) => {
     setActiveIndex(swiper.activeIndex);
@@ -99,6 +101,16 @@ export default function MenuGallery({ images }) {
           ))}
         </Swiper>
 
+        {/* ── Back to Home ── */}
+        <button
+          className={`back-btn back-btn--${variant}`}
+          onClick={() => router.push('/')}
+          aria-label="Back to home"
+        >
+          <BackArrowIcon />
+          <span className="back-btn__label">Menu</span>
+        </button>
+
         {/* ← Prev */}
         <button
           onClick={goPrev}
@@ -132,5 +144,21 @@ export default function MenuGallery({ images }) {
         <div className="kbd-hint" aria-hidden="true">← → arrow keys</div>
       </div>
     </>
+  );
+}
+
+/* ── Sub-components ────────────────────────────────────── */
+
+function BackArrowIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path
+        d="M19 12H5M5 12L12 19M5 12L12 5"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
   );
 }
