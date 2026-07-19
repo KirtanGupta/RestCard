@@ -28,6 +28,7 @@ export default function MenuGallery({ images, variant = 'nonveg' }) {
   const [menuItems,   setMenuItems]   = useState([]);
   const [toastText,   setToastText]   = useState('');
   const [showToast,   setShowToast]   = useState(false);
+  const [shareSuccess, setShareSuccess] = useState(false);
   const toastTimer                    = useRef(null);
 
   const swiperRef = useRef(null);
@@ -80,6 +81,40 @@ export default function MenuGallery({ images, variant = 'nonveg' }) {
     // Close search overlay
     setSearchOpen(false);
   }, []);
+
+  // Handle sharing of digital menu page
+  const handleShare = useCallback(async () => {
+    const shareUrl = window.location.origin + (variant === 'veg' ? '/veg' : '/menu');
+    const shareData = {
+      title: "GD's Fast Food — Digital Menu",
+      text: "Check out GD's Fast Food Digital Menu.",
+      url: shareUrl,
+    };
+
+    try {
+      if (navigator.share && navigator.canShare && navigator.canShare(shareData)) {
+        await navigator.share(shareData);
+        setShareSuccess(true);
+        setTimeout(() => setShareSuccess(false), 2200);
+      } else {
+        throw new Error('Web Share API not supported');
+      }
+    } catch (err) {
+      // Fallback: Copy to clipboard
+      try {
+        await navigator.clipboard.writeText(shareUrl);
+        clearTimeout(toastTimer.current);
+        setToastText("Menu link copied successfully.");
+        setShowToast(true);
+        toastTimer.current = setTimeout(() => setShowToast(false), 3000);
+        
+        setShareSuccess(true);
+        setTimeout(() => setShareSuccess(false), 2200);
+      } catch (clipErr) {
+        console.error('Failed to copy link:', clipErr);
+      }
+    }
+  }, [variant]);
 
   // Keyboard navigation (disabled while zoomed so arrows don't fight with pan)
   useEffect(() => {
@@ -212,7 +247,7 @@ export default function MenuGallery({ images, variant = 'nonveg' }) {
           {toastText}
         </div>
 
-        {/* Floating Contact Stack (Call & WhatsApp) */}
+        {/* Floating Contact Stack (Call, WhatsApp & Share) */}
         {!isZoomed && !searchOpen && (
           <div className="float-contact-group">
             {/* Call Button */}
@@ -238,6 +273,17 @@ export default function MenuGallery({ images, variant = 'nonveg' }) {
               <WhatsAppIcon />
               <span className="float-tooltip">Order on WhatsApp</span>
             </a>
+
+            {/* Share Button */}
+            <button
+              onClick={handleShare}
+              className={`float-contact-btn float-contact-btn--share${shareSuccess ? ' float-contact-btn--success' : ''}`}
+              title="Share Menu"
+              aria-label="Share Menu"
+            >
+              {shareSuccess ? <CheckIcon /> : <ShareIcon />}
+              <span className="float-tooltip">{shareSuccess ? 'Link Copied!' : 'Share Menu'}</span>
+            </button>
           </div>
         )}
       </div>
@@ -305,4 +351,22 @@ function WhatsAppIcon() {
   );
 }
 
+function ShareIcon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <circle cx="18" cy="5" r="3" />
+      <circle cx="6" cy="12" r="3" />
+      <circle cx="18" cy="19" r="3" />
+      <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" />
+      <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
+    </svg>
+  );
+}
 
+function CheckIcon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <polyline points="20 6 9 17 4 12" />
+    </svg>
+  );
+}
