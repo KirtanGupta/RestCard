@@ -990,11 +990,16 @@ body {
    ============================================================ */
 .zoom-hint {
   position: fixed;
-  top: 14px;
+  top: 74px;
+  left: 14px;
   right: 14px;
+  margin: 0 auto;
+  width: max-content;
+  max-width: calc(100vw - 28px);
   z-index: 200;
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 0.38rem;
   padding: 0.36rem 0.82rem;
   font-family: 'Inter', sans-serif;
