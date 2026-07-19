@@ -937,3 +937,212 @@ body {
 @media (min-width: 768px) {
   .back-btn { top: 18px; left: 18px; font-size: 0.75rem; }
 }
+
+/* ============================================================
+   ZOOMABLE IMAGE — cursor hint on gallery images
+   ============================================================ */
+.menu-img--zoomable {
+  cursor: zoom-in;
+}
+
+/* ============================================================
+   ZOOM HINT — "Tap image to zoom" badge (gallery pages)
+   ============================================================ */
+.zoom-hint {
+  position: fixed;
+  top: 14px;
+  right: 14px;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  gap: 0.38rem;
+  padding: 0.36rem 0.82rem;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.6rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(212, 160, 23, 0.7);
+  background: rgba(0, 0, 0, 0.6);
+  border: 1px solid rgba(212, 160, 23, 0.22);
+  border-radius: 100px;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  pointer-events: none;
+  animation: zoomHintIn 0.5s ease 1.2s both, zoomHintOut 0.6s ease 5s forwards;
+}
+@keyframes zoomHintIn  { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes zoomHintOut { to   { opacity: 0; pointer-events: none; } }
+
+/* ============================================================
+   IMAGE VIEWER — fullscreen modal overlay
+   ============================================================ */
+
+/* ── Backdrop ── */
+.iv-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  background: rgba(0, 0, 0, 0.94);
+  backdrop-filter: blur(22px);
+  -webkit-backdrop-filter: blur(22px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  /* Prevent accidental page scrolling */
+  touch-action: none;
+  overscroll-behavior: none;
+}
+
+/* Open animation */
+.iv-backdrop--open {
+  animation: iv-open 0.28s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+@keyframes iv-open {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* Close animation */
+.iv-backdrop--close {
+  animation: iv-close 0.3s cubic-bezier(0.7, 0, 0.9, 1) forwards;
+  pointer-events: none;
+}
+@keyframes iv-close {
+  from { opacity: 1; }
+  to   { opacity: 0; }
+}
+
+/* ── Image wrapper — receives transform + gesture events ── */
+/* IMPORTANT: NO animation with transform here — CSS animations override
+   inline style transforms even after they finish (via fill-mode), which
+   would block all JS-applied zoom transforms. Only animate opacity. */
+.iv-img-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100vw;
+  height: 100vh;
+  /* transform applied via JS for pan/zoom */
+  transform-origin: 0 0;
+  will-change: transform;
+  touch-action: none;
+  user-select: none;
+  /* Fade in only — NO transform animation here */
+  animation: iv-wrap-fadein 0.28s ease both;
+}
+@keyframes iv-wrap-fadein {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* ── Inner wrapper for pop-in animation — separate from zoom wrapper ── */
+/* This div's transform animation never conflicts with the JS zoom */
+.iv-img-inner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  animation: iv-img-pop 0.32s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+@keyframes iv-img-pop {
+  from { transform: scale(0.86); }
+  to   { transform: scale(1); }
+}
+
+/* ── Image inside viewer ── */
+.iv-img {
+  display: block;
+  max-width: 100vw;
+  max-height: 100vh;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  user-select: none;
+  -webkit-user-drag: none;
+  pointer-events: none; /* gestures handled by wrapper, not img */
+  /* High-quality rendering while zoomed — 'auto' is best for photographs */
+  image-rendering: auto;
+}
+
+/* ── Close button — top right ── */
+.iv-close-btn {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  z-index: 10100;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(20, 20, 20, 0.82);
+  border: 1.5px solid rgba(212, 160, 23, 0.45);
+  border-radius: 50%;
+  color: rgba(212, 160, 23, 0.9);
+  cursor: pointer;
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+  transition: background 0.18s, border-color 0.18s, transform 0.15s, box-shadow 0.18s;
+  animation: iv-open 0.35s ease 0.1s both;
+}
+.iv-close-btn:hover,
+.iv-close-btn:focus-visible {
+  background: rgba(212, 160, 23, 0.18);
+  border-color: var(--gold);
+  box-shadow: 0 0 16px var(--gold-glow), 0 4px 20px rgba(0, 0, 0, 0.5);
+  transform: scale(1.08);
+}
+.iv-close-btn:active { transform: scale(0.92); }
+
+/* ── Zoom level badge — bottom center ── */
+.iv-zoom-badge {
+  position: fixed;
+  bottom: 5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10100;
+  font-family: 'Cinzel', serif;
+  font-size: 0.75rem;
+  letter-spacing: 0.2em;
+  color: var(--gold);
+  background: rgba(0, 0, 0, 0.72);
+  border: 1px solid rgba(212, 160, 23, 0.3);
+  border-radius: 100px;
+  padding: 0.35rem 1rem;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  pointer-events: none;
+  animation: iv-badge-in 0.2s ease both;
+}
+@keyframes iv-badge-in {
+  from { opacity: 0; transform: translateX(-50%) scale(0.85); }
+  to   { opacity: 1; transform: translateX(-50%) scale(1); }
+}
+
+/* ── Reset hint — bottom center, above badge ── */
+.iv-reset-hint {
+  position: fixed;
+  bottom: 3rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10100;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.58rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.35);
+  white-space: nowrap;
+  pointer-events: none;
+  animation: iv-badge-in 0.25s ease 0.1s both;
+}
+
+/* ── Responsive tweaks for viewer ── */
+@media (min-width: 768px) {
+  .iv-close-btn { width: 46px; height: 46px; top: 20px; right: 20px; }
+}

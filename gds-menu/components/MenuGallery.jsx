@@ -13,6 +13,7 @@ import 'swiper/css/pagination';
 
 import LoadingScreen from './LoadingScreen';
 import ImageCounter from './ImageCounter';
+import ImageViewer from './ImageViewer';
 
 export default function MenuGallery({ images, variant = 'nonveg' }) {
   const [loaded,      setLoaded]      = useState(false);
@@ -20,6 +21,12 @@ export default function MenuGallery({ images, variant = 'nonveg' }) {
   const [showHint,    setShowHint]    = useState(true);
   const [isFirst,     setIsFirst]     = useState(true);
   const [isLast,      setIsLast]      = useState(false);
+
+  // ── Image viewer state ────────────────────────────────────────────────────
+  const [viewerOpen,  setViewerOpen]  = useState(false);
+  const [viewerSrc,   setViewerSrc]   = useState('');
+  const [viewerAlt,   setViewerAlt]   = useState('');
+
   const swiperRef = useRef(null);
   const router = useRouter();
 
@@ -35,9 +42,25 @@ export default function MenuGallery({ images, variant = 'nonveg' }) {
   const goPrev = useCallback(() => swiperRef.current?.slidePrev(), []);
   const goNext = useCallback(() => swiperRef.current?.slideNext(), []);
 
+  // ── Open viewer ───────────────────────────────────────────────────────────
+  const openViewer = useCallback((src, alt) => {
+    setViewerSrc(src);
+    setViewerAlt(alt);
+    setViewerOpen(true);
+  }, []);
+
+  // ── Close viewer ──────────────────────────────────────────────────────────
+  const closeViewer = useCallback(() => {
+    setViewerOpen(false);
+    // Re-enable Swiper touch (ImageViewer also does this, but belt-and-suspenders)
+    if (swiperRef.current) swiperRef.current.allowTouchMove = true;
+  }, []);
+
   // Keyboard navigation
   useEffect(() => {
     const onKey = (e) => {
+      // Don't intercept keys when viewer is open (ImageViewer handles Escape)
+      if (viewerOpen) return;
       if (!swiperRef.current) return;
       if      (e.key === 'ArrowRight' || e.key === 'ArrowDown') goNext();
       else if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp')   goPrev();
@@ -46,7 +69,7 @@ export default function MenuGallery({ images, variant = 'nonveg' }) {
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [images.length, goPrev, goNext]);
+  }, [images.length, goPrev, goNext, viewerOpen]);
 
   return (
     <>
@@ -93,8 +116,9 @@ export default function MenuGallery({ images, variant = 'nonveg' }) {
                   // renders all slides in DOM — lazy would never trigger
                   priority={i < 2}
                   loading="eager"
-                  className="menu-img"
+                  className="menu-img menu-img--zoomable"
                   draggable={false}
+                  onClick={() => openViewer(img.src, img.alt)}
                 />
               </div>
             </SwiperSlide>
@@ -142,7 +166,24 @@ export default function MenuGallery({ images, variant = 'nonveg' }) {
 
         {/* Desktop hint */}
         <div className="kbd-hint" aria-hidden="true">← → arrow keys</div>
+
+        {/* Tap-to-zoom hint — shown on first load */}
+        {loaded && activeIndex === 0 && (
+          <div className="zoom-hint" aria-hidden="true">
+            <ZoomIcon />
+            <span>Tap image to zoom</span>
+          </div>
+        )}
       </div>
+
+      {/* ── Fullscreen image viewer ── */}
+      <ImageViewer
+        src={viewerSrc}
+        alt={viewerAlt}
+        isOpen={viewerOpen}
+        onClose={closeViewer}
+        swiperRef={swiperRef}
+      />
     </>
   );
 }
@@ -159,6 +200,16 @@ function BackArrowIcon() {
         strokeLinecap="round"
         strokeLinejoin="round"
       />
+    </svg>
+  );
+}
+
+function ZoomIcon() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <circle cx="11" cy="11" r="8" stroke="currentColor" strokeWidth="2"/>
+      <path d="M21 21l-4.35-4.35" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+      <path d="M11 8v6M8 11h6" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
     </svg>
   );
 }
