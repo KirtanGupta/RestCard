@@ -233,7 +233,7 @@ export default function MenuGallery({ images, variant = 'nonveg' }) {
         {loaded && !isZoomed && !searchOpen && (
           <div className="zoom-hint" aria-hidden="true">
             <PinchIcon />
-            <span>Pinch or double-tap to zoom</span>
+            <span>Double-tap to zoom • Rotate screen for full view</span>
           </div>
         )}
 

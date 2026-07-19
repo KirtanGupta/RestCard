@@ -291,9 +291,8 @@ export default function ZoomableSlide({ img, priority, onZoomChange, swiperRef }
         alt={img.alt}
         width={1600}
         height={1150}
-        quality={90}
+        unoptimized={true}
         priority={priority}
-        loading="eager"
         className="menu-img"
         draggable={false}
       />
