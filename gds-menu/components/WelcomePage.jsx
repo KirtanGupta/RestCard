@@ -4,6 +4,8 @@ import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useRef, useState } from 'react';
 import SitePreloader from './SitePreloader';
+import RestaurantInfoCard from './RestaurantInfoCard';
+import WelcomeSpecials from './WelcomeSpecials';
 
 export default function WelcomePage() {
   const router = useRouter();
@@ -56,6 +58,9 @@ export default function WelcomePage() {
         <p className="welcome-subheading">Select your preferred menu</p>
       </section>
 
+      {/* ── RESTAURANT INFO CARD ── */}
+      <RestaurantInfoCard />
+
       {/* ── MENU BUTTONS ── */}
       <section className="welcome-buttons" aria-label="Menu category selection">
         {/* VEG MENU */}
@@ -88,6 +93,9 @@ export default function WelcomePage() {
         <span className="welcome-footer-dot" aria-hidden="true">·</span>
         <span>Est. 1986</span>
       </footer>
+
+      {/* ── TODAY'S SPECIALS FLOATING WIDGET ── */}
+      <WelcomeSpecials />
     </main>
     </>
   );
