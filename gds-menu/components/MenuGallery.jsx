@@ -2,18 +2,16 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import Image from 'next/image';
 import { MdSwipeRight } from 'react-icons/md';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Pagination, Keyboard, A11y } from 'swiper/modules';
 
-// Only import the base CSS — no fade/effect CSS needed
 import 'swiper/css';
 import 'swiper/css/pagination';
 
 import LoadingScreen from './LoadingScreen';
 import ImageCounter from './ImageCounter';
-import ImageViewer from './ImageViewer';
+import ZoomableSlide from './ZoomableSlide';
 
 export default function MenuGallery({ images, variant = 'nonveg' }) {
   const [loaded,      setLoaded]      = useState(false);
@@ -21,14 +19,10 @@ export default function MenuGallery({ images, variant = 'nonveg' }) {
   const [showHint,    setShowHint]    = useState(true);
   const [isFirst,     setIsFirst]     = useState(true);
   const [isLast,      setIsLast]      = useState(false);
-
-  // ── Image viewer state ────────────────────────────────────────────────────
-  const [viewerOpen,  setViewerOpen]  = useState(false);
-  const [viewerSrc,   setViewerSrc]   = useState('');
-  const [viewerAlt,   setViewerAlt]   = useState('');
+  const [isZoomed,    setIsZoomed]    = useState(false);
 
   const swiperRef = useRef(null);
-  const router = useRouter();
+  const router    = useRouter();
 
   const handleSlideChange = useCallback((swiper) => {
     setActiveIndex(swiper.activeIndex);
@@ -38,29 +32,17 @@ export default function MenuGallery({ images, variant = 'nonveg' }) {
   }, []);
 
   const handleLoadingComplete = useCallback(() => setLoaded(true), []);
-
   const goPrev = useCallback(() => swiperRef.current?.slidePrev(), []);
   const goNext = useCallback(() => swiperRef.current?.slideNext(), []);
 
-  // ── Open viewer ───────────────────────────────────────────────────────────
-  const openViewer = useCallback((src, alt) => {
-    setViewerSrc(src);
-    setViewerAlt(alt);
-    setViewerOpen(true);
+  const handleZoomChange = useCallback((zoomed) => {
+    setIsZoomed(zoomed);
   }, []);
 
-  // ── Close viewer ──────────────────────────────────────────────────────────
-  const closeViewer = useCallback(() => {
-    setViewerOpen(false);
-    // Re-enable Swiper touch (ImageViewer also does this, but belt-and-suspenders)
-    if (swiperRef.current) swiperRef.current.allowTouchMove = true;
-  }, []);
-
-  // Keyboard navigation
+  // Keyboard navigation (disabled while zoomed so arrows don't fight with pan)
   useEffect(() => {
     const onKey = (e) => {
-      // Don't intercept keys when viewer is open (ImageViewer handles Escape)
-      if (viewerOpen) return;
+      if (isZoomed) return;
       if (!swiperRef.current) return;
       if      (e.key === 'ArrowRight' || e.key === 'ArrowDown') goNext();
       else if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp')   goPrev();
@@ -69,23 +51,27 @@ export default function MenuGallery({ images, variant = 'nonveg' }) {
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [images.length, goPrev, goNext, viewerOpen]);
+  }, [images.length, goPrev, goNext, isZoomed]);
 
   return (
     <>
       {/* Loading splash */}
       {!loaded && <LoadingScreen onComplete={handleLoadingComplete} />}
 
-      {/* Gallery — rendered immediately so images preload */}
       <div
         className="gallery-root"
         style={{ opacity: loaded ? 1 : 0, transition: 'opacity 0.6s ease' }}
         role="main"
         aria-label="Menu gallery"
       >
+        {/* Dark backdrop — deepens when zoomed for a focused feel */}
+        <div
+          className={`gallery-zoom-backdrop${isZoomed ? ' gallery-zoom-backdrop--on' : ''}`}
+          aria-hidden="true"
+        />
+
         <Swiper
           modules={[Pagination, Keyboard, A11y]}
-          // Default slide effect — no EffectFade (it breaks lazy loading)
           speed={400}
           slidesPerView={1}
           keyboard={{ enabled: true, onlyInViewport: false }}
@@ -105,22 +91,12 @@ export default function MenuGallery({ images, variant = 'nonveg' }) {
         >
           {images.map((img, i) => (
             <SwiperSlide key={img.src} aria-label={`Menu page ${i + 1}`}>
-              <div className="slide-centrer">
-                <Image
-                  src={img.src}
-                  alt={img.alt}
-                  width={1600}
-                  height={1150}
-                  quality={90}
-                  // Eagerly load first 2; rest also eager since Swiper
-                  // renders all slides in DOM — lazy would never trigger
-                  priority={i < 2}
-                  loading="eager"
-                  className="menu-img menu-img--zoomable"
-                  draggable={false}
-                  onClick={() => openViewer(img.src, img.alt)}
-                />
-              </div>
+              <ZoomableSlide
+                img={img}
+                priority={i < 2}
+                onZoomChange={handleZoomChange}
+                swiperRef={swiperRef}
+              />
             </SwiperSlide>
           ))}
         </Swiper>
@@ -135,19 +111,19 @@ export default function MenuGallery({ images, variant = 'nonveg' }) {
           <span className="back-btn__label">Menu</span>
         </button>
 
-        {/* ← Prev */}
+        {/* ← Prev — hidden while zoomed */}
         <button
           onClick={goPrev}
-          className={`nav-btn nav-prev${isFirst ? ' nav-hidden' : ''}`}
+          className={`nav-btn nav-prev${isFirst || isZoomed ? ' nav-hidden' : ''}`}
           aria-label="Previous menu page"
         >
           <span className="nav-symbol">&lt;</span>
         </button>
 
-        {/* → Next */}
+        {/* → Next — hidden while zoomed */}
         <button
           onClick={goNext}
-          className={`nav-btn nav-next${isLast ? ' nav-hidden' : ''}`}
+          className={`nav-btn nav-next${isLast || isZoomed ? ' nav-hidden' : ''}`}
           aria-label="Next menu page"
         >
           <span className="nav-symbol">&gt;</span>
@@ -160,35 +136,28 @@ export default function MenuGallery({ images, variant = 'nonveg' }) {
         {showHint && activeIndex === 0 && (
           <div className="swipe-hint" aria-hidden="true">
             <MdSwipeRight size={16} />
-            <span>Swipe or use &gt; to browse</span>
+            <span>Swipe to browse</span>
+          </div>
+        )}
+
+        {/* Zoom hint — shown briefly on first load */}
+        {loaded && !isZoomed && (
+          <div className="zoom-hint" aria-hidden="true">
+            <PinchIcon />
+            <span>Pinch or double-tap to zoom</span>
           </div>
         )}
 
         {/* Desktop hint */}
-        <div className="kbd-hint" aria-hidden="true">← → arrow keys</div>
-
-        {/* Tap-to-zoom hint — shown on first load */}
-        {loaded && activeIndex === 0 && (
-          <div className="zoom-hint" aria-hidden="true">
-            <ZoomIcon />
-            <span>Tap image to zoom</span>
-          </div>
-        )}
+        <div className="kbd-hint" aria-hidden="true">
+          {isZoomed ? 'Tap image to reset zoom' : '← → arrow keys • scroll to zoom'}
+        </div>
       </div>
-
-      {/* ── Fullscreen image viewer ── */}
-      <ImageViewer
-        src={viewerSrc}
-        alt={viewerAlt}
-        isOpen={viewerOpen}
-        onClose={closeViewer}
-        swiperRef={swiperRef}
-      />
     </>
   );
 }
 
-/* ── Sub-components ────────────────────────────────────── */
+/* ── Sub-components ────────────────────────────────────────────── */
 
 function BackArrowIcon() {
   return (
@@ -204,12 +173,13 @@ function BackArrowIcon() {
   );
 }
 
-function ZoomIcon() {
+function PinchIcon() {
   return (
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <circle cx="11" cy="11" r="8" stroke="currentColor" strokeWidth="2"/>
-      <path d="M21 21l-4.35-4.35" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-      <path d="M11 8v6M8 11h6" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+      <path d="M7 9.5C7 8.12 8.12 7 9.5 7S12 8.12 12 9.5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/>
+      <path d="M17 9.5C17 8.12 15.88 7 14.5 7S12 8.12 12 9.5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/>
+      <path d="M7 9.5v3a5 5 0 0010 0v-3" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/>
+      <path d="M10 14v3M14 14v3" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/>
     </svg>
   );
 }
