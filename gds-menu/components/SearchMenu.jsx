@@ -5,6 +5,7 @@ import { useEffect, useRef, useState, useTransition } from 'react';
 /**
  * SearchMenu — Fullscreen search overlay matching the black & gold aesthetic.
  * Filters menu items and handles selection to slide swiper to the correct page.
+ * Better Utilization
  */
 export default function SearchMenu({ isOpen, onClose, items, onSelect }) {
   const [query, setQuery] = useState('');
