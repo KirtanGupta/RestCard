@@ -13,6 +13,7 @@ import LoadingScreen from './LoadingScreen';
 import ImageCounter from './ImageCounter';
 import ZoomableSlide from './ZoomableSlide';
 import SearchMenu from './SearchMenu';
+import { restaurantConfig } from '../config/restaurant';
 
 export default function MenuGallery({ images, variant = 'nonveg' }) {
   const [loaded,      setLoaded]      = useState(false);
@@ -210,6 +211,35 @@ export default function MenuGallery({ images, variant = 'nonveg' }) {
         <div className={`page-toast${showToast ? ' page-toast--show' : ''}`} role="alert" aria-live="polite">
           {toastText}
         </div>
+
+        {/* Floating Contact Stack (Call & WhatsApp) */}
+        {!isZoomed && !searchOpen && (
+          <div className="float-contact-group">
+            {/* Call Button */}
+            <a
+              href={`tel:${restaurantConfig.phone}`}
+              className="float-contact-btn float-contact-btn--call"
+              title="Call Restaurant"
+              aria-label="Call Restaurant"
+            >
+              <CallIcon />
+              <span className="float-tooltip">Call Restaurant</span>
+            </a>
+
+            {/* WhatsApp Button */}
+            <a
+              href={restaurantConfig.whatsappUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="float-contact-btn float-contact-btn--whatsapp"
+              title="Order on WhatsApp"
+              aria-label="Order on WhatsApp"
+            >
+              <WhatsAppIcon />
+              <span className="float-tooltip">Order on WhatsApp</span>
+            </a>
+          </div>
+        )}
       </div>
 
       {/* Fullscreen Search Overlay */}
@@ -258,4 +288,21 @@ function PinchIcon() {
     </svg>
   );
 }
+
+function CallIcon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
+    </svg>
+  );
+}
+
+function WhatsAppIcon() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+      <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946C.06 5.348 5.397.01 12.008.01c3.202.001 6.212 1.246 8.477 3.513 2.262 2.268 3.507 5.28 3.505 8.484-.004 6.657-5.34 11.997-11.953 11.997-2.005-.001-3.973-.502-5.724-1.455L0 24zm6.59-4.846c1.6.95 3.188 1.449 4.825 1.451 5.436 0 9.86-4.37 9.864-9.799.002-2.63-1.023-5.101-2.885-6.963C16.578 1.98 14.115.95 11.512.95c-5.442 0-9.866 4.372-9.87 9.802 0 1.714.453 3.39 1.317 4.88l-.994 3.63 3.734-.968c1.468.791 2.923 1.21 4.358 1.211zm11.332-6.52c-.3-.15-1.77-.875-2.04-.972-.27-.1-.47-.15-.67.15-.2.3-.77.97-.94 1.17-.17.2-.35.22-.65.07-1.127-.565-1.977-1.008-2.766-2.358-.2-.35-.02-.54.15-.71.15-.15.3-.35.45-.53.15-.17.2-.3.3-.5.1-.2.05-.38-.02-.53-.07-.15-.67-1.62-.92-2.22-.24-.58-.49-.5-.67-.51h-.57c-.2 0-.52.07-.8.37-.27.3-1.05 1.02-1.05 2.5 0 1.47 1.07 2.9 1.22 3.1.15.2 2.1 3.21 5.09 4.51.71.31 1.27.49 1.7.63.72.23 1.38.19 1.9.12.58-.09 1.77-.72 2.02-1.42.25-.7.25-1.3.17-1.42-.07-.13-.27-.2-.57-.35z" />
+    </svg>
+  );
+}
+
 

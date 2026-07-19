@@ -1606,3 +1606,158 @@ body {
 @media (min-width: 768px) {
   .iv-close-btn { width: 46px; height: 46px; top: 20px; right: 20px; }
 }
+
+/* ============================================================
+   FLOATING CONTACT BUTTONS (Call & WhatsApp)
+   ============================================================ */
+.float-contact-group {
+  position: fixed;
+  bottom: 6rem; /* Floats safely above navigation dots / bar */
+  right: 14px;
+  z-index: 1000; /* High z-index to sit on top of Swiper and slide contents */
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  pointer-events: none; /* Let clicks pass through empty spaces */
+}
+
+.float-contact-btn {
+  pointer-events: auto; /* Enable clicks on the buttons */
+  position: relative;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  cursor: pointer;
+  outline: none;
+  text-decoration: none;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  /* Use simple opacity transition, no complex transform entry animation to avoid conflicts */
+  transition: transform 0.22s cubic-bezier(0.25, 0.46, 0.45, 0.94), box-shadow 0.22s ease, border-color 0.22s ease, opacity 0.22s ease;
+  -webkit-tap-highlight-color: transparent;
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+/* Call Button - gold and dark glass */
+.float-contact-btn--call {
+  background: rgba(18, 18, 18, 0.88);
+  border: 1.5px solid rgba(212, 160, 23, 0.55);
+  color: var(--gold);
+}
+.float-contact-btn--call:hover,
+.float-contact-btn--call:focus-visible {
+  border-color: var(--gold-bright);
+  color: var(--gold-bright);
+  box-shadow: 0 0 16px var(--gold-glow), 0 4px 18px rgba(0, 0, 0, 0.55);
+  transform: translateY(-2px) scale(1.06);
+}
+
+/* WhatsApp Button - brand green and glass */
+.float-contact-btn--whatsapp {
+  background: rgba(37, 211, 102, 0.88);
+  border: 1.5px solid rgba(255, 255, 255, 0.3);
+  color: #ffffff;
+  /* Apply soft pulsing animation */
+  animation: whatsapp-pulse 4.5s ease-in-out infinite;
+}
+.float-contact-btn--whatsapp:hover,
+.float-contact-btn--whatsapp:focus-visible {
+  background: rgba(37, 211, 102, 0.96);
+  border-color: #ffffff;
+  box-shadow: 0 0 20px rgba(37, 211, 102, 0.65), 0 4px 18px rgba(0, 0, 0, 0.55);
+  transform: translateY(-2px) scale(1.06);
+}
+
+.float-contact-btn:active {
+  transform: translateY(1px) scale(0.93) !important;
+}
+
+/* Premium Floating Tooltips */
+.float-tooltip {
+  position: absolute;
+  right: 58px;
+  top: 50%;
+  transform: translateY(-50%) translateX(8px);
+  background: rgba(10, 10, 10, 0.94);
+  border: 1px solid rgba(212, 160, 23, 0.35);
+  border-radius: 6px;
+  padding: 5px 11px;
+  color: #ffffff;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  transition: opacity 0.18s ease, transform 0.18s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+/* Tooltip arrows */
+.float-tooltip::after {
+  content: '';
+  position: absolute;
+  left: 100%;
+  top: 50%;
+  transform: translateY(-50%);
+  border-width: 5px;
+  border-style: solid;
+  border-color: transparent transparent transparent rgba(10, 10, 10, 0.94);
+}
+
+/* Hover & Focus show tooltips */
+.float-contact-btn:hover .float-tooltip,
+.float-contact-btn:focus-visible .float-tooltip {
+  opacity: 1;
+  transform: translateY(-50%) translateX(0);
+}
+
+/* Soft pulse animation for WhatsApp button */
+@keyframes whatsapp-pulse {
+  0%, 100% {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.45);
+    transform: translateY(0) scale(1);
+  }
+  25% {
+    box-shadow: 0 0 16px rgba(37, 211, 102, 0.45), 0 4px 16px rgba(0, 0, 0, 0.45);
+    transform: translateY(0) scale(1.03);
+  }
+  30% {
+    box-shadow: 0 0 24px rgba(37, 211, 102, 0.6), 0 4px 16px rgba(0, 0, 0, 0.45);
+    transform: translateY(0) scale(1.06);
+  }
+  35% {
+    box-shadow: 0 0 16px rgba(37, 211, 102, 0.45), 0 4px 16px rgba(0, 0, 0, 0.45);
+    transform: translateY(0) scale(1.03);
+  }
+  40% {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.45);
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Responsive tweaks for mobile viewport */
+@media (min-width: 768px) {
+  .float-contact-group {
+    right: 20px;
+    bottom: 6.5rem;
+    gap: 14px;
+  }
+  .float-contact-btn {
+    width: 52px;
+    height: 52px;
+  }
+  .float-tooltip {
+    right: 64px;
+    font-size: 0.76rem;
+  }
+}
+
+
