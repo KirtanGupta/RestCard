@@ -12,6 +12,7 @@ import 'swiper/css/pagination';
 import LoadingScreen from './LoadingScreen';
 import ImageCounter from './ImageCounter';
 import ZoomableSlide from './ZoomableSlide';
+import SearchMenu from './SearchMenu';
 
 export default function MenuGallery({ images, variant = 'nonveg' }) {
   const [loaded,      setLoaded]      = useState(false);
@@ -21,8 +22,30 @@ export default function MenuGallery({ images, variant = 'nonveg' }) {
   const [isLast,      setIsLast]      = useState(false);
   const [isZoomed,    setIsZoomed]    = useState(false);
 
+  // Search & Toast state
+  const [searchOpen,  setSearchOpen]  = useState(false);
+  const [menuItems,   setMenuItems]   = useState([]);
+  const [toastText,   setToastText]   = useState('');
+  const [showToast,   setShowToast]   = useState(false);
+  const toastTimer                    = useRef(null);
+
   const swiperRef = useRef(null);
   const router    = useRouter();
+
+  // Load transcription data
+  useEffect(() => {
+    fetch('/data/menu-data.json')
+      .then((res) => {
+        if (!res.ok) throw new Error('Failed to load menu database');
+        return res.json();
+      })
+      .then((data) => {
+        // Filter: only show items matching this gallery route variant
+        const filtered = data.filter((item) => item.type === variant);
+        setMenuItems(filtered);
+      })
+      .catch((err) => console.error('Menu Database Error:', err));
+  }, [variant]);
 
   const handleSlideChange = useCallback((swiper) => {
     setActiveIndex(swiper.activeIndex);
@@ -39,10 +62,28 @@ export default function MenuGallery({ images, variant = 'nonveg' }) {
     setIsZoomed(zoomed);
   }, []);
 
+  // Handle item selection from search
+  const handleSearchSelect = useCallback((item) => {
+    if (!swiperRef.current) return;
+
+    // Slide to page (page numbers in JSON database are 1-indexed)
+    const targetPage = item.page - 1;
+    swiperRef.current.slideTo(targetPage);
+
+    // Show temporary highlight banner toast
+    clearTimeout(toastTimer.current);
+    setToastText(`Showing: ${item.category} (Page ${item.page})`);
+    setShowToast(true);
+    toastTimer.current = setTimeout(() => setShowToast(false), 3000);
+
+    // Close search overlay
+    setSearchOpen(false);
+  }, []);
+
   // Keyboard navigation (disabled while zoomed so arrows don't fight with pan)
   useEffect(() => {
     const onKey = (e) => {
-      if (isZoomed) return;
+      if (isZoomed || searchOpen) return;
       if (!swiperRef.current) return;
       if      (e.key === 'ArrowRight' || e.key === 'ArrowDown') goNext();
       else if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp')   goPrev();
@@ -51,7 +92,7 @@ export default function MenuGallery({ images, variant = 'nonveg' }) {
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [images.length, goPrev, goNext, isZoomed]);
+  }, [images.length, goPrev, goNext, isZoomed, searchOpen]);
 
   return (
     <>
@@ -111,19 +152,31 @@ export default function MenuGallery({ images, variant = 'nonveg' }) {
           <span className="back-btn__label">Menu</span>
         </button>
 
-        {/* ← Prev — hidden while zoomed */}
+        {/* ── Search Trigger Button ── */}
+        {!isZoomed && (
+          <button
+            className={`search-btn search-btn--${variant}`}
+            onClick={() => setSearchOpen(true)}
+            aria-label="Search menu items"
+          >
+            <SearchMagnifierIcon />
+          </button>
+        )}
+
+
+        {/* ← Prev — hidden while zoomed or search is open */}
         <button
           onClick={goPrev}
-          className={`nav-btn nav-prev${isFirst || isZoomed ? ' nav-hidden' : ''}`}
+          className={`nav-btn nav-prev${isFirst || isZoomed || searchOpen ? ' nav-hidden' : ''}`}
           aria-label="Previous menu page"
         >
           <span className="nav-symbol">&lt;</span>
         </button>
 
-        {/* → Next — hidden while zoomed */}
+        {/* → Next — hidden while zoomed or search is open */}
         <button
           onClick={goNext}
-          className={`nav-btn nav-next${isLast || isZoomed ? ' nav-hidden' : ''}`}
+          className={`nav-btn nav-next${isLast || isZoomed || searchOpen ? ' nav-hidden' : ''}`}
           aria-label="Next menu page"
         >
           <span className="nav-symbol">&gt;</span>
@@ -141,7 +194,7 @@ export default function MenuGallery({ images, variant = 'nonveg' }) {
         )}
 
         {/* Zoom hint — shown briefly on first load */}
-        {loaded && !isZoomed && (
+        {loaded && !isZoomed && !searchOpen && (
           <div className="zoom-hint" aria-hidden="true">
             <PinchIcon />
             <span>Pinch or double-tap to zoom</span>
@@ -152,7 +205,20 @@ export default function MenuGallery({ images, variant = 'nonveg' }) {
         <div className="kbd-hint" aria-hidden="true">
           {isZoomed ? 'Tap image to reset zoom' : '← → arrow keys • scroll to zoom'}
         </div>
+
+        {/* Page Toast / Highlight Banner */}
+        <div className={`page-toast${showToast ? ' page-toast--show' : ''}`} role="alert" aria-live="polite">
+          {toastText}
+        </div>
       </div>
+
+      {/* Fullscreen Search Overlay */}
+      <SearchMenu
+        isOpen={searchOpen}
+        onClose={() => setSearchOpen(false)}
+        items={menuItems}
+        onSelect={handleSearchSelect}
+      />
     </>
   );
 }
@@ -173,6 +239,15 @@ function BackArrowIcon() {
   );
 }
 
+function SearchMagnifierIcon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <circle cx="11" cy="11" r="8" stroke="currentColor" strokeWidth="2.2" />
+      <path d="M21 21l-4.35-4.35" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" />
+    </svg>
+  );
+}
+
 function PinchIcon() {
   return (
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
@@ -183,3 +258,4 @@ function PinchIcon() {
     </svg>
   );
 }
+
