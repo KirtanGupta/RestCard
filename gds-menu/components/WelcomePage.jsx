@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useRef, useState } from 'react';
 import SitePreloader from './SitePreloader';
 import RestaurantInfoCard from './RestaurantInfoCard';
-import WelcomeSpecials from './WelcomeSpecials';
+// import WelcomeSpecials from './WelcomeSpecials';
 
 export default function WelcomePage() {
   const router = useRouter();
@@ -95,7 +95,7 @@ export default function WelcomePage() {
       </footer>
 
       {/* ── TODAY'S SPECIALS FLOATING WIDGET ── */}
-      <WelcomeSpecials />
+      {/* <WelcomeSpecials /> */}
     </main>
     </>
   );

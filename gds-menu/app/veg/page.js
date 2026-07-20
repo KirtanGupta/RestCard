@@ -8,7 +8,7 @@ export const metadata = {
 
 // Veg menu images stored in public/menu/
 const VEG_IMAGES = [
-  { src: '/menu/v2/veg_cover.png', alt: "GD's Fast Food — Veg Menu Cover & Contact Info" },
+  { src: '/menu/v2/veg_cover_v2.png', alt: "GD's Fast Food — Veg Menu Cover & Contact Info" },
   { src: '/menu/v2/Veg1.png',      alt: "GD's Fast Food Veg Menu Page 1" },
   { src: '/menu/v2/Veg2.png', alt: "GD's Fast Food Veg Menu Page 2" },
   { src: '/menu/v2/Veg3.png', alt: "GD's Fast Food Veg Menu Page 3" },
